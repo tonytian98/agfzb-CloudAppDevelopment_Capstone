@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 # from .models import related models
 # from .restapis import related methods
+from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf, get_dealer_from_cf_by_id, post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
@@ -13,7 +14,7 @@ from django.urls import reverse
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
-
+context = {}
 
 # Create your views here.
 def about(request):
@@ -54,7 +55,7 @@ def logout_request(request):
 # def registration_request(request):
 # ...
 def registration_request(request):
-    context = {}
+    
     if request.method == 'GET':
         return render(request, 'djangoapp/registration.html')
     elif request.method == 'POST':
@@ -79,11 +80,15 @@ def registration_request(request):
 
 # Update the `get_dealerships` view to render the index page with a list of dealerships
 def get_dealerships(request):
-    context = {}
+
     if request.method == "GET":
+        url = "https://jp-tok.functions.appdomain.cloud/api/v1/web/37f85a90-c44c-425f-a35b-af61d167afef/dealership-package/get-dealership"
+        # Get dealers from the URL
+        dealerships = get_dealers_from_cf(url)
+        # Concat all dealer's short name
+           
+        context["dealership_list"] = dealerships
         return render(request, 'djangoapp/index.html', context)
-
-
 # Create a `get_dealer_details` view to render the reviews of a dealer
 # def get_dealer_details(request, dealer_id):
 # ...
