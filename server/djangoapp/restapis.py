@@ -72,17 +72,28 @@ def get_dealers_from_cf(url, **kwargs):
     # Call get_request with a URL parameter
     json_result = get_request(url)
     if json_result:
+        print(json_result)
         # Get the row list in JSON as dealers
         dealers = json_result
         # For each dealer object
         for dealer in dealers:
-            dealer_doc = dealer["doc"]
+            #dealer_doc = dealer["doc"]
             # Create a CarDealer object with values in `doc` object
-            dealer_obj = CarDealer(address=dealer_doc["address"], city=dealer_doc["city"], full_name=dealer_doc["full_name"],
+            if "doc" in dealer.keys():
+                dealer_doc = dealer["doc"]
+                dealer_obj = CarDealer(address=dealer_doc["address"], city=dealer_doc["city"], full_name=dealer_doc["full_name"],
                                    id=dealer_doc["id"], lat=dealer_doc["lat"], long=dealer_doc["long"],
                                    short_name=dealer_doc["short_name"],
                                    st=dealer_doc["st"], zip=dealer_doc["zip"])
-            results.append(dealer_obj)
+                results.append(dealer_obj)
+                
+            else:
+                dealer_doc =dealer
+                dealer_obj = CarDealer(address=dealer_doc["address"], city=dealer_doc["city"], full_name=dealer_doc["full_name"],
+                                   id=dealer_doc["id"], lat=dealer_doc["lat"], long=dealer_doc["long"],
+                                   short_name=dealer_doc["short_name"],
+                                   st=dealer_doc["st"], zip=dealer_doc["zip"])
+                results.append(dealer_obj)
     return results
 
 
@@ -99,13 +110,16 @@ def get_dealer_from_cf_by_id(url, dealer_id):
 
 def get_dealer_reviews_from_cf(url, dealer_id):
     results = []
-    json_result = get_request(url, dealerId=dealer_id)
+    json_result = get_request(url)
+    jr = get_request(dealer_id)
     if json_result:
-        reviews = json_result["body"]
+       
+        reviews = json_result
         for review in reviews:
             if review["purchase"]:
                 review_obj = DealerReview(
                     dealership=review["dealership"],
+                    dealershipName = jr[0]["full_name"],
                     name=review["name"],
                     purchase=review["purchase"],
                     review=review["review"],
@@ -120,6 +134,7 @@ def get_dealer_reviews_from_cf(url, dealer_id):
                 review_obj = DealerReview(
                     dealership=review["dealership"],
                     name=review["name"],
+                    dealershipName = jr[0]["full_name"],
                     purchase=review["purchase"],
                     review=review["review"],
                     purchase_date=None,
@@ -134,8 +149,8 @@ def get_dealer_reviews_from_cf(url, dealer_id):
 
 
 def analyze_review_sentiments(dealer_review):
-    API_KEY = "56Uu0KyzSNEZ8u71Q9Nu4eqYmSiLxsMV0otoCXFUCIam"
-    NLU_URL = 'https://api.eu-gb.natural-language-understanding.watson.cloud.ibm.com/instances/351966a8-a214-4fc1-a319-ea7f066c002c'
+    API_KEY = "RuO4gxMTyZFP-yPKMaroUbhBMyGh4AScSI1IdA1Dwp9C"
+    NLU_URL = 'https://api.jp-tok.natural-language-understanding.watson.cloud.ibm.com/instances/c7eb5fc5-b435-4a37-bc8b-fb5108950ba7'
     authenticator = IAMAuthenticator(API_KEY)
     natural_language_understanding = NaturalLanguageUnderstandingV1(
         version='2021-08-01', authenticator=authenticator)
